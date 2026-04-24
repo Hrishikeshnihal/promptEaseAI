@@ -1,0 +1,202 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: PromptEase AI - generate React UIs from plain-language descriptions.
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: AI
+    description: AI generation pipeline (plan -> generate -> clean).
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /ai/build:
+    post:
+      operationId: buildUi
+      tags: [AI]
+      summary: Full pipeline - Gemini plan -> Groq generate -> Ollama clean
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BuildUiBody"
+      responses:
+        "200":
+          description: Generated UI plan and code
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BuildUiResponse"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "500":
+          description: Generation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "502":
+          description: All providers failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+  /ai/edit:
+    post:
+      operationId: editUi
+      tags: [AI]
+      summary: Edit existing React code with a natural-language instruction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EditUiBody"
+      responses:
+        "200":
+          description: Updated React code
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EditUiResponse"
+        "400":
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "500":
+          description: Generation failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+        "502":
+          description: All providers failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+
+    UiOptions:
+      type: object
+      required: [appType, theme, layout, targetUser]
+      properties:
+        appType:
+          type: string
+        theme:
+          type: string
+          description: Light, Dark, Colorful, Minimal
+        layout:
+          type: string
+          description: Landing Page, Dashboard, Mobile App, Cards
+        targetUser:
+          type: string
+          description: Student, Business, Creator, Customer
+
+    UiPlan:
+      type: object
+      required: [appName, targetUser, theme, layout, sections, components, dummyDataNeeded, visualStyle, colorDirection, suggestedEdits]
+      properties:
+        appName:
+          type: string
+        targetUser:
+          type: string
+        theme:
+          type: string
+        layout:
+          type: string
+        sections:
+          type: array
+          items:
+            type: string
+        components:
+          type: array
+          items:
+            type: string
+        dummyDataNeeded:
+          type: array
+          items:
+            type: string
+        visualStyle:
+          type: string
+        colorDirection:
+          type: string
+        suggestedEdits:
+          type: array
+          items:
+            type: string
+
+    BuildUiBody:
+      type: object
+      required: [prompt, options]
+      properties:
+        prompt:
+          type: string
+          minLength: 1
+        options:
+          $ref: "#/components/schemas/UiOptions"
+    BuildUiResponse:
+      type: object
+      required: [code, plan]
+      properties:
+        code:
+          type: string
+        plan:
+          $ref: "#/components/schemas/UiPlan"
+
+    EditUiBody:
+      type: object
+      required: [code, instruction]
+      properties:
+        code:
+          type: string
+          minLength: 1
+        instruction:
+          type: string
+          minLength: 1
+    EditUiResponse:
+      type: object
+      required: [code]
+      properties:
+        code:
+          type: string

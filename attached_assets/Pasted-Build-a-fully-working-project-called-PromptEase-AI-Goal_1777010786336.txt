@@ -1,0 +1,196 @@
+Build a fully working project called PromptEase AI.
+
+Goal:
+PromptEase AI is a beginner-friendly AI React UI generator for non-coders. Users enter a simple app idea, choose guided options, and the system generates a clean React + Tailwind UI preview and code.
+
+Tech stack:
+- React + Vite frontend
+- Tailwind CSS
+- Node.js + Express backend
+- Firebase Authentication with email/password and email verification
+- Firestore for saving generated projects
+- Groq API for main React UI generation
+- Gemini API for UI architecture planning
+- Ollama local API for code cleanup/refinement using qwen2.5-coder
+- Ollama URL: http://localhost:11434
+
+IMPORTANT SECURITY:
+- Do NOT hardcode API keys.
+- Use environment variables / Replit Secrets:
+  GROQ_API_KEY
+  GEMINI_API_KEY
+  OLLAMA_URL
+  FIREBASE_API_KEY
+  FIREBASE_AUTH_DOMAIN
+  FIREBASE_PROJECT_ID
+  FIREBASE_STORAGE_BUCKET
+  FIREBASE_MESSAGING_SENDER_ID
+  FIREBASE_APP_ID
+  FIREBASE_MEASUREMENT_ID
+
+Frontend requirements:
+Create a premium dashboard UI with:
+1. Left sidebar:
+   - PromptEase AI logo
+   - Dashboard
+   - New UI
+   - My Projects
+   - Examples
+   - Settings
+   - Logout
+
+2. Top bar:
+   - Project name
+   - User email
+   - Save Project button
+   - Export Code button
+
+3. Main builder area:
+   - Large prompt box: "What do you want to build?"
+   - Example chips:
+     Food delivery app, Gym tracker, Study planner, Portfolio, Ecommerce store, Finance dashboard
+   - Guided options:
+     App type
+     Theme: Light / Dark / Colorful / Minimal
+     Layout: Landing Page / Dashboard / Mobile App / Cards
+     Target user: Student / Business / Creator / Customer
+   - Generate UI button
+
+4. Progress tracker:
+   - Understanding idea
+   - Planning UI
+   - Generating React UI
+   - Cleaning code
+   - Creating preview
+
+5. Live preview panel:
+   - Show generated React UI preview
+   - Preview should be the main focus
+   - Code should be secondary
+
+6. Quick edit buttons:
+   - Make modern
+   - Make dark
+   - Add sidebar
+   - Add cards
+   - Add hero section
+   - Improve spacing
+   - Simplify UI
+   - Make mobile friendly
+
+7. Code panel:
+   - Hidden by default
+   - View React code button
+   - Copy code button
+   - Download GeneratedApp.jsx button
+
+8. Right panel:
+   - Project summary:
+     App name
+     App type
+     Theme
+     Layout
+     Components generated
+   - AI suggestions:
+     Add login screen
+     Add pricing section
+     Add testimonials
+     Add dashboard cards
+     Add mobile layout
+
+Authentication:
+- Use Firebase Auth.
+- Signup with email/password.
+- Send email verification after signup.
+- Login only allowed after email is verified.
+- Show message if email is not verified.
+- Add resend verification email button.
+- Logout button.
+
+Firestore:
+- Save generated projects with:
+  userId
+  prompt
+  options
+  generatedCode
+  uiPlan
+  createdAt
+- Show saved projects in My Projects page.
+- Allow opening saved project.
+
+Backend API routes:
+1. POST /api/plan-ui
+   - Uses Gemini.
+   - Input: user prompt + selected options.
+   - Output: JSON UI architecture.
+   - Gemini must return ONLY JSON.
+
+2. POST /api/generate-ui
+   - Uses Groq.
+   - Input: Gemini UI plan.
+   - Output: React component code.
+   - Output must be one component only.
+
+3. POST /api/refine-ui
+   - Uses Ollama qwen2.5-coder at OLLAMA_URL.
+   - Input: generated React code.
+   - Cleans/fixes code.
+   - Ensures it returns ONLY valid React JSX.
+   - Must export default function GeneratedApp().
+
+4. POST /api/build-ui
+   - Full pipeline:
+     user prompt + options
+     → Gemini creates UI plan
+     → Groq generates React code
+     → Ollama cleans/fixes code
+     → return final code + UI plan
+
+5. POST /api/edit-ui
+   - Input: existing code + edit instruction.
+   - Use Groq first.
+   - Use Ollama to clean final code.
+   - Return updated React code.
+
+Model prompts:
+
+Gemini planner prompt:
+"You are a UI architecture planner. Convert the user’s app idea into a clear UI structure. Return ONLY valid JSON. Include appName, targetUser, theme, layout, sections, components, dummyDataNeeded, visualStyle, colorDirection, and suggestedEdits. Do not return code."
+
+Groq generator prompt:
+"You are a React UI generator. Generate ONLY valid React JSX code. Do not use markdown. Do not explain. Use Tailwind CSS. Create one single component. Must export default function GeneratedApp(). No backend. No routing. No APIs. Use dummy static data. Make it modern, polished, responsive, and beginner-friendly."
+
+Ollama cleanup prompt:
+"Fix and clean this React component. Return ONLY valid JSX code. No markdown. No explanation. Must export default function GeneratedApp(). Use Tailwind CSS. Keep it one file. Remove invalid imports unless absolutely needed. No backend, no routing, no API calls."
+
+Preview:
+- Create a safe preview system.
+- Render generated component in a preview area.
+- If direct dynamic React preview is difficult, fallback to showing generated JSX code and a mock preview card.
+- App must not crash if generated code has errors.
+
+UI style:
+- Premium SaaS dashboard
+- Rounded cards
+- Soft shadows
+- Smooth loading states
+- Clean spacing
+- Gradient accents
+- Modern non-coder friendly design
+- Mobile responsive
+
+Error handling:
+- If Gemini fails, use Groq to create UI plan.
+- If Groq fails, use Ollama to generate basic UI.
+- If Ollama fails, return Groq code directly.
+- Show user-friendly error messages.
+
+.env.example:
+Create an env example file with placeholder names only.
+
+Final result:
+The project should run with:
+npm install
+npm run dev
+
+Also provide clear setup instructions in README.md.
